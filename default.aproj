@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="gb2312"?>
+<project ver="3" name="QQ好友导出" libEmbed="true" icon="..." ui="win" output="QQ好友导出.exe" CompanyName="BY JTWO" FileDescription="QQ好友导出" LegalCopyright="" ProductName="" InternalName="" FileVersion="0.0.0.1" ProductVersion="0.0.0.1" publishDir="/Publish/">
+	<file name="main.aau" path="main.aau"/>
+	<folder name="资源文件" path="res" embed="true">
+		<file name="qqlogin.aau" path="res\qqlogin.aau" comment="res\qqlogin.aau"/>
+	</folder>
+</project>

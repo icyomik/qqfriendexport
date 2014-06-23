@@ -1,0 +1,15 @@
+import win.ui;
+/*DSG{{*/
+mainForm = ..win.form(text="QQ好友导出";right=600;bottom=400)
+mainForm.add()
+/*}}*/
+
+QQLogin = function(){
+	var qqfrm,wb = mainForm.loadForm("\res\qqlogin.aau", mainForm/*父窗口*/); 
+	qqfrm.login(549000912,false/*设为true隐藏父窗口*/) //认证ID，取自原登录页面
+	return qqfrm.doModal(mainForm) //可返回null，string，table
+}
+QQLogin()
+
+mainForm.show() 
+win.loopMessage(); 
