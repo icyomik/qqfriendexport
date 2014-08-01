@@ -3,7 +3,7 @@
 QQLogin = function(){
 	var qqfrm,wb = mainForm.loadForm("\res\qqlogin.aau", mainForm/*父窗口*/); 
 	qqfrm.login(549000912,false/*设为true隐藏父窗口*/) //认证ID，取自原登录页面
-	return qqfrm.doModal(mainForm) //可返回null，string，table
+	return qqfrm.doModal(mainForm) //返回COOKIE数据
 }
 /*}}*/
 
@@ -11,11 +11,11 @@ import inet;
 import win.ui;
 import web.form;
 /*DSG{{*/
-var winform = ..win.form(text="QQ快速登录";right=500;bottom=350;max=false;parent=...)
+var winform = ..win.form(text="QQ快速登录";right=450;bottom=350;max=false;parent=...)
 winform.add()
 /*}}*/
 
-//限制窗口尺寸
+//限制窗口尺寸的变化
 import win.ui.minmax;
 var uiMinX = winform.width
 var uiMinY = winform.height
@@ -32,16 +32,23 @@ winform.login = function(appid, parent_hide=false){
 	loginFrm.showMenu=function(x,y,id,ele){ return false; }
 	
 	//认证登录网址
-	authUrl = "http://ui.ptlogin2.qq.com/cgi-bin/login?s_url=http://ui.ptlogin2.qq.com/favicon.ico&hide_title_bar=1&style=12"
-	authUrl = authUrl ++ "&appid=" ++ tostring(appid) //认证ID，取自原登录页面
-	
+	authUrl = string.concat("https://xui.ptlogin2.qq.com/cgi-bin/xlogin?",
+							"&s_url=http://mail.qq.com/favicon.ico",/*注意域名，影响某些COOKIE生存期*/
+							"&hide_border=1", "&style=19",/*附注style=19/34这两个风格不错*/
+							"&appid="++tostring(appid)/*认证ID，取自原登录页面*/
+					)
 	loginFrm.go( authUrl ); loginFrm.wait(""); /*winform.show();*/ //等待打开
 	
 	//网址跳转后触发
 	loginFrm.NavigateComplete2 = function(pDisp, url) {
 		if(loginFrm.location != authUrl) { //网址变更，登录认证通过
 			winform.hide = true
-			winform.endModal( "cookie: "++inet.getCookie("http://ptlogin2.qq.com") ) //返回string类型的浏览器cookie
+			var biscuit = {} //用TABLE记录COOKIE再转成STRING
+			table.push( biscuit, (inet.getCookie("http://qq.com")) )
+			table.push( biscuit, (inet.getCookie("http://ptlogin2.qq.com")) )
+			table.push( biscuit, (inet.getCookie("http://ui.ptlogin2.qq.com")) )
+			table.push( biscuit, (inet.getCookie("http://mail.qq.com")) ) //QQMail特有
+			winform.endModal( "Cookie: "++string.join(biscuit,"; ")++"; " ) //返回string类型的cookie
 		}
 	}
 }

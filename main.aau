@@ -1,15 +1,72 @@
 import win.ui;
+import web.json
 /*DSG{{*/
-mainForm = ..win.form(text="QQ好友导出";right=600;bottom=400)
+mainForm = ..win.form(text="QQ好友导出";right=1;bottom=1)
 mainForm.add()
 /*}}*/
 
+//HTTP_GET操作
+httpGet = function(destUrl, biscuit){
+	urlHeader = biscuit : global.biscuit //COOKIE
+	var web_header, web_htmltext = win.invoke( //异步交互数据，防止前端界面假死
+		function(url, header, debug_proxy){
+			import inet.whttp;
+			whttp = inet.whttp(,debug_proxy)
+			
+			whttp.beginRequest(url, "GET")
+			whttp.writeHeader(header)
+			whttp.disableRedirects() //防止302跳转
+			whttp.send()
+			var resp_header = whttp.readHeader()
+			var resp_htmltext = whttp.readAll()
+			whttp.endRequest()
+			
+			whttp.close()
+			return resp_header, resp_htmltext; 
+		}, destUrl, urlHeader, //"127.0.0.1:8888"
+	)
+	return web_htmltext, web_header; 
+}
+
+//QQ登录
 QQLogin = function(){
 	var qqfrm,wb = mainForm.loadForm("\res\qqlogin.aau", mainForm/*父窗口*/); 
-	qqfrm.login(549000912,false/*设为true隐藏父窗口*/) //认证ID，取自原登录页面
+	qqfrm.login(522005705,false/*设为true隐藏父窗口*/) //认证ID，取自原登录页面
 	return qqfrm.doModal(mainForm) //可返回null，string，table
 }
-QQLogin()
+global.biscuit = QQLogin()  //返回Cookie
+if(null == global.biscuit){ return } //没有登录，退出程序
 
-mainForm.show() 
-win.loopMessage(); 
+//得到网址sid值，和Cookie中的sid值
+var login_html, login_header = httpGet("https://mail.qq.com/cgi-bin/login?vt=passport", biscuit)
+var urlSid = string.match(login_html, 'frame_html\\?sid\\=([^"]*)')
+global.biscuit += ( "sid="++(string.match(login_header,"Set-Cookie\:\s*sid\=([^;][^;]*)")) )
+
+//分组数据
+var goGroupData = httpGet("http://mail.qq.com/cgi-bin/laddr_list?t=contact&nocheckframe=true&sid="++urlSid)
+goGroupData = string.match(goGroupData,"var\s*goGroupData\s*=\s*([^\n]*)")
+goGroupData = string.replace(goGroupData,'\+\"','\"')
+goGroupData = web.json.parse(goGroupData)
+
+for(k,v in goGroupData["oQQ"]["oList"]){ //单个分组中的好友列表
+	var goListData = httpGet("http://mail.qq.com/cgi-bin/laddr_list?operate=view&t=contact&view=qq&groupid="++v.sId++"&sid="++urlSid)
+	goListData = string.match(goListData,"var\s*goListData\s*=\s*([^\n]*)")
+	goListData = string.replace(goListData,'\+\"','\"')
+	goGroupData["oQQ"]["oList"][k][v.sId] = web.json.parse(goListData) //放进分组数据中
+}
+
+//"【属组】","【邮箱】","【备注】","【昵称】","【电话】"
+var csvText = string.format('"%s","%s","%s","%s"\n', "【属组】","【邮箱】","【备注】","【昵称】")
+for(ql_k,ql_v in goGroupData["oQQ"]["oList"]){
+	for(k,v in goGroupData["oQQ"]["oList"][ql_k][ql_v.sId]["oList"]){
+		v.oQQNickName := v.oName
+		csvText += string.format('"%s","%s","%s","%s"\n', v.oGroup[1].sName,v.oEmail[1].sVal,v.oName[1].sVal,v.oQQNickName[1].sVal)
+	}
+}
+
+//输出到文件
+qq_number = string.match(global.biscuit,"uin=o([0-9]*)") //QQ号，用于生成文件
+string.save(io.splitpath(io.tmpname()).dir++'QQFriends.'++qq_number++'.csv', csvText)
+string.save(io.splitpath(io.tmpname()).dir++'QQFriends.'++qq_number++'.json', web.json.stringify(goGroupData)) //原始JSON
+import process; process.execute(io.splitpath(io.tmpname()).dir++'QQFriends.'++qq_number++'.csv')
+
