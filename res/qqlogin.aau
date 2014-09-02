@@ -32,22 +32,23 @@ winform.login = function(appid, parent_hide=false){
 	loginFrm.showMenu=function(x,y,id,ele){ return false; }
 	
 	//认证登录网址
+	var jump2url = "http://mail.qq.com/favicon.ico" //注意域名，影响某些COOKIE生存期
 	authUrl = string.concat("https://xui.ptlogin2.qq.com/cgi-bin/xlogin?",
-							"&s_url=http://mail.qq.com/favicon.ico",/*注意域名，影响某些COOKIE生存期*/
 							"&hide_border=1", "&style=19",/*附注style=19/34这两个风格不错*/
+							"&s_url="++tostring(jump2url),/*登录后跳转到的网址*/
 							"&appid="++tostring(appid)/*认证ID，取自原登录页面*/
 					)
 	loginFrm.go( authUrl ); loginFrm.wait(""); /*winform.show();*/ //等待打开
 	
 	//网址跳转后触发
 	loginFrm.NavigateComplete2 = function(pDisp, url) {
-		if(loginFrm.location != authUrl) { //网址变更，登录认证通过
+		if (loginFrm.location == jump2url) { //目标网址确认，登录通过
 			winform.hide = true
 			var biscuit = {} //用TABLE记录COOKIE再转成STRING
-			table.push( biscuit, (inet.getCookie("http://qq.com")) )
-			table.push( biscuit, (inet.getCookie("http://ptlogin2.qq.com")) )
-			table.push( biscuit, (inet.getCookie("http://ui.ptlogin2.qq.com")) )
 			table.push( biscuit, (inet.getCookie("http://mail.qq.com")) ) //QQMail特有
+			table.push( biscuit, (inet.getCookie("http://ui.ptlogin2.qq.com")) )
+			table.push( biscuit, (inet.getCookie("http://ptlogin2.qq.com")) )
+			table.push( biscuit, (inet.getCookie("http://qq.com")) )
 			winform.endModal( "Cookie: "++string.join(biscuit,"; ")++"; " ) //返回string类型的cookie
 		}
 	}

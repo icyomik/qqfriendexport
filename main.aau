@@ -37,6 +37,9 @@ QQLogin = function(){
 global.biscuit = QQLogin()  //返回Cookie
 if(null == global.biscuit){ return } //没有登录，退出程序
 
+//QQ号
+qq_number = string.trimleft(string.match(global.biscuit,"uin=o([0-9]*)"),"0")
+
 //得到网址sid值，和Cookie中的sid值
 var login_html, login_header = httpGet("https://mail.qq.com/cgi-bin/login?vt=passport", biscuit)
 var urlSid = string.match(login_html, 'frame_html\\?sid\\=([^"]*)')
@@ -48,7 +51,8 @@ goGroupData = string.match(goGroupData,"var\s*goGroupData\s*=\s*([^\n]*)")
 goGroupData = string.replace(goGroupData,'\+\"','\"')
 goGroupData = web.json.parse(goGroupData)
 
-for(k,v in goGroupData["oQQ"]["oList"]){ //单个分组中的好友列表
+//单个分组中的好友列表
+for(k,v in goGroupData["oQQ"]["oList"]){
 	var goListData = httpGet("http://mail.qq.com/cgi-bin/laddr_list?operate=view&t=contact&view=qq&groupid="++v.sId++"&sid="++urlSid)
 	goListData = string.match(goListData,"var\s*goListData\s*=\s*([^\n]*)")
 	goListData = string.replace(goListData,'\+\"','\"')
@@ -56,17 +60,17 @@ for(k,v in goGroupData["oQQ"]["oList"]){ //单个分组中的好友列表
 }
 
 //"【属组】","【邮箱】","【备注】","【昵称】","【电话】"
-var csvText = string.format('"%s","%s","%s","%s"\n', "【属组】","【邮箱】","【备注】","【昵称】")
+var csvText = string.format('"%s","%s","%s","%s"\r\n', "【属组】","【邮箱】","【备注】","【昵称】")
 for(ql_k,ql_v in goGroupData["oQQ"]["oList"]){
 	for(k,v in goGroupData["oQQ"]["oList"][ql_k][ql_v.sId]["oList"]){
 		v.oQQNickName := v.oName
-		csvText += string.format('"%s","%s","%s","%s"\n', v.oGroup[1].sName,v.oEmail[1].sVal,v.oName[1].sVal,v.oQQNickName[1].sVal)
+		csvText += string.format('"%s","%s","%s","%s"\r\n', v.oGroup[1].sName,v.oEmail[1].sVal,v.oName[1].sVal,v.oQQNickName[1].sVal)
 	}
 }
 
-//输出到文件
-qq_number = string.match(global.biscuit,"uin=o([0-9]*)") //QQ号，用于生成文件
-string.save(io.splitpath(io.tmpname()).dir++'QQFriends.'++qq_number++'.csv', csvText)
+//写入文件
 string.save(io.splitpath(io.tmpname()).dir++'QQFriends.'++qq_number++'.json', web.json.stringify(goGroupData)) //原始JSON
-import process; process.execute(io.splitpath(io.tmpname()).dir++'QQFriends.'++qq_number++'.csv')
+csvFile = 'QQFriends.'++qq_number++'.csv' //不存在，或文件可写时，导出csv数据
+if(not(io.exist(csvFile)) or io.exist(csvFile,2)){ string.save(csvFile, csvText) }
+if(mainForm.msgboxTest("是否立刻打开导出文件？")){ import process; process.execute(csvFile) }
 
