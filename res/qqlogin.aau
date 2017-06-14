@@ -1,9 +1,9 @@
-
-/*QQµÇÂ¼´°¿Ú£¬µ÷ÓÃÀı×Ó{{*/
+ï»¿
+/*QQç™»å½•çª—å£ï¼Œè°ƒç”¨ä¾‹å­{{*/
 QQLogin = function(){
-	var qqfrm,wb = mainForm.loadForm("\res\qqlogin.aau", mainForm/*¸¸´°¿Ú*/); 
-	qqfrm.login(549000912,false/*ÉèÎªtrueÒş²Ø¸¸´°¿Ú*/) //ÈÏÖ¤ID£¬È¡×ÔÔ­µÇÂ¼Ò³Ãæ
-	return qqfrm.doModal(mainForm) //·µ»ØCOOKIEÊı¾İ
+	var qqfrm,wb = mainForm.loadForm("\res\qqlogin.aau", mainForm/*çˆ¶çª—å£*/); 
+	qqfrm.login(549000912,false/*è®¾ä¸ºtrueéšè—çˆ¶çª—å£*/) //è®¤è¯IDï¼Œå–è‡ªåŸç™»å½•é¡µé¢
+	return qqfrm.doModal(mainForm) //è¿”å›COOKIEæ•°æ®
 }
 /*}}*/
 
@@ -11,49 +11,49 @@ import inet;
 import win.ui;
 import web.form;
 /*DSG{{*/
-var winform = ..win.form(text="QQ¿ìËÙµÇÂ¼";right=450;bottom=350;max=false;parent=...)
+var winform = ..win.form(text="QQå¿«é€Ÿç™»å½•";right=450;bottom=350;max=false;parent=...)
 winform.add()
 /*}}*/
 
-//ÏŞÖÆ´°¿Ú³ß´çµÄ±ä»¯
+//é™åˆ¶çª—å£å°ºå¯¸çš„å˜åŒ–
 import win.ui.minmax;
 var uiMinX = winform.width
 var uiMinY = winform.height
-var uiMaxX = uiMinX //¿í¶È²»ÄÜ±ä
+var uiMaxX = uiMinX //å®½åº¦ä¸èƒ½å˜
 win.ui.minmax(winform,uiMinX,uiMinY,uiMaxX)
 
-/*µÇÂ¼´°¿Úº¯Êı-¿ªÊ¼*/
+/*ç™»å½•çª—å£å‡½æ•°-å¼€å§‹*/
 winform.login = function(appid, parent_hide=false){
-	var loginFrm = web.form( winform ); //´´½¨web´°Ìå
+	var loginFrm = web.form( winform ); //åˆ›å»ºwebçª—ä½“
 	//var wb = web.form(winform, 0x8/*_UIFLAG_SCROLL_NO*/);
 	
-	//½ûÖ¹µ¯³ö£º´íÎó¶Ô»°¿ò¡¢ÓÒ¼ü²Ëµ¥
+	//ç¦æ­¢å¼¹å‡ºï¼šé”™è¯¯å¯¹è¯æ¡†ã€å³é”®èœå•
 	loginFrm.silent=true
 	loginFrm.showMenu=function(x,y,id,ele){ return false; }
 	
-	//ÈÏÖ¤µÇÂ¼ÍøÖ·
-	var jump2url = "http://mail.qq.com/favicon.ico" //×¢ÒâÓòÃû£¬Ó°ÏìÄ³Ğ©COOKIEÉú´æÆÚ
+	//è®¤è¯ç™»å½•ç½‘å€
+	var jump2url = "http://mail.qq.com/favicon.ico" //æ³¨æ„åŸŸåï¼Œå½±å“æŸäº›COOKIEç”Ÿå­˜æœŸ
 	authUrl = string.concat("https://xui.ptlogin2.qq.com/cgi-bin/xlogin?",
-							"&hide_border=1", "&style=19",/*¸½×¢style=19/34ÕâÁ½¸ö·ç¸ñ²»´í*/
-							"&s_url="++tostring(jump2url),/*µÇÂ¼ºóÌø×ªµ½µÄÍøÖ·*/
-							"&appid="++tostring(appid)/*ÈÏÖ¤ID£¬È¡×ÔÔ­µÇÂ¼Ò³Ãæ*/
+							"&hide_border=1", "&style=19",/*é™„æ³¨style=19/34è¿™ä¸¤ä¸ªé£æ ¼ä¸é”™*/
+							"&s_url="++tostring(jump2url),/*ç™»å½•åè·³è½¬åˆ°çš„ç½‘å€*/
+							"&appid="++tostring(appid)/*è®¤è¯IDï¼Œå–è‡ªåŸç™»å½•é¡µé¢*/
 					)
-	loginFrm.go( authUrl ); loginFrm.wait(""); /*winform.show();*/ //µÈ´ı´ò¿ª
+	loginFrm.go( authUrl ); loginFrm.wait(""); /*winform.show();*/ //ç­‰å¾…æ‰“å¼€
 	
-	//ÍøÖ·Ìø×ªºó´¥·¢
+	//ç½‘å€è·³è½¬åè§¦å‘
 	loginFrm.NavigateComplete2 = function(pDisp, url) {
-		if (loginFrm.location == jump2url) { //Ä¿±êÍøÖ·È·ÈÏ£¬µÇÂ¼Í¨¹ı
+		if (loginFrm.location == jump2url) { //ç›®æ ‡ç½‘å€ç¡®è®¤ï¼Œç™»å½•é€šè¿‡
 			winform.hide = true
-			var biscuit = {} //ÓÃTABLE¼ÇÂ¼COOKIEÔÙ×ª³ÉSTRING
-			table.push( biscuit, (inet.getCookie("http://mail.qq.com")) ) //QQMailÌØÓĞ
+			var biscuit = {} //ç”¨TABLEè®°å½•COOKIEå†è½¬æˆSTRING
+			table.push( biscuit, (inet.getCookie("http://mail.qq.com")) ) //QQMailç‰¹æœ‰
 			table.push( biscuit, (inet.getCookie("http://ui.ptlogin2.qq.com")) )
 			table.push( biscuit, (inet.getCookie("http://ptlogin2.qq.com")) )
 			table.push( biscuit, (inet.getCookie("http://qq.com")) )
-			winform.endModal( "Cookie: "++string.join(biscuit,"; ")++"; " ) //·µ»ØstringÀàĞÍµÄcookie
+			winform.endModal( "Cookie: "++string.join(biscuit,"; ")++"; " ) //è¿”å›stringç±»å‹çš„cookie
 		}
 	}
 }
-/*µÇÂ¼´°¿Úº¯Êı-½áÊø*/
+/*ç™»å½•çª—å£å‡½æ•°-ç»“æŸ*/
 
 win.loopMessage();
 return winform;

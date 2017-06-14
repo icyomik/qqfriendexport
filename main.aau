@@ -1,21 +1,22 @@
-import win.ui;
+ï»¿import win.ui;
 import web.json
 /*DSG{{*/
-mainForm = ..win.form(text="QQºÃÓÑµ¼³ö";right=1;bottom=1)
+mainForm = win.form(text="QQå¥½å‹å¯¼å‡º";right=1;bottom=1)
 mainForm.add()
 /*}}*/
 
-//HTTP_GET²Ù×÷
+//HTTP_GETæ“ä½œ
 httpGet = function(destUrl, biscuit){
 	urlHeader = biscuit : global.biscuit //COOKIE
-	var web_header, web_htmltext = win.invoke( //Òì²½½»»¥Êı¾İ£¬·ÀÖ¹Ç°¶Ë½çÃæ¼ÙËÀ
+	urlHeader += '\nReferer: http://mail.qq.com' //REFERER
+	var web_header, web_htmltext = win.invoke( //å¼‚æ­¥äº¤äº’æ•°æ®ï¼Œé˜²æ­¢å‰ç«¯ç•Œé¢å‡æ­»
 		function(url, header, debug_proxy){
 			import inet.whttp;
 			whttp = inet.whttp(,debug_proxy)
 			
 			whttp.beginRequest(url, "GET")
 			whttp.writeHeader(header)
-			whttp.disableRedirects() //·ÀÖ¹302Ìø×ª
+			whttp.disableRedirects() //é˜²æ­¢302è·³è½¬
 			whttp.send()
 			var resp_header = whttp.readHeader()
 			var resp_htmltext = whttp.readAll()
@@ -28,39 +29,39 @@ httpGet = function(destUrl, biscuit){
 	return web_htmltext, web_header; 
 }
 
-//QQµÇÂ¼
+//QQç™»å½•
 QQLogin = function(){
-	var qqfrm,wb = mainForm.loadForm("\res\qqlogin.aau", mainForm/*¸¸´°¿Ú*/); 
-	qqfrm.login(522005705,false/*ÉèÎªtrueÒş²Ø¸¸´°¿Ú*/) //ÈÏÖ¤ID£¬È¡×ÔÔ­µÇÂ¼Ò³Ãæ
-	return qqfrm.doModal(mainForm) //¿É·µ»Ønull£¬string£¬table
+	var qqfrm,wb = mainForm.loadForm("\res\qqlogin.aau", mainForm/*çˆ¶çª—å£*/); 
+	qqfrm.login(522005705,false/*è®¾ä¸ºtrueéšè—çˆ¶çª—å£*/) //è®¤è¯IDï¼Œå–è‡ªåŸç™»å½•é¡µé¢
+	return qqfrm.doModal(mainForm) //å¯è¿”å›nullï¼Œstringï¼Œtable
 }
-global.biscuit = QQLogin()  //·µ»ØCookie
-if(null == global.biscuit){ return } //Ã»ÓĞµÇÂ¼£¬ÍË³ö³ÌĞò
+global.biscuit = QQLogin()  //è¿”å›Cookie
+if(null == global.biscuit){ return } //æ²¡æœ‰ç™»å½•ï¼Œé€€å‡ºç¨‹åº
 
-//QQºÅ
+//QQå·
 qq_number = string.trimleft(string.match(global.biscuit,"uin=o([0-9]*)"),"0")
 
-//µÃµ½ÍøÖ·sidÖµ£¬ºÍCookieÖĞµÄsidÖµ
+//å¾—åˆ°ç½‘å€sidå€¼ï¼Œå’ŒCookieä¸­çš„sidå€¼
 var login_html, login_header = httpGet("https://mail.qq.com/cgi-bin/login?vt=passport", biscuit)
 var urlSid = string.match(login_html, 'frame_html\\?sid\\=([^"]*)')
 global.biscuit += ( "sid="++(string.match(login_header,"Set-Cookie\:\s*sid\=([^;][^;]*)")) )
 
-//·Ö×éÊı¾İ
+//åˆ†ç»„æ•°æ®
 var goGroupData = httpGet("http://mail.qq.com/cgi-bin/laddr_list?t=contact&nocheckframe=true&sid="++urlSid)
 goGroupData = string.match(goGroupData,"var\s*goGroupData\s*=\s*([^\n]*)")
 goGroupData = string.replace(goGroupData,'\+\"','\"')
 goGroupData = web.json.parse(goGroupData)
 
-//µ¥¸ö·Ö×éÖĞµÄºÃÓÑÁĞ±í
+//å•ä¸ªåˆ†ç»„ä¸­çš„å¥½å‹åˆ—è¡¨
 for(k,v in goGroupData["oQQ"]["oList"]){
 	var goListData = httpGet("http://mail.qq.com/cgi-bin/laddr_list?operate=view&t=contact&view=qq&groupid="++v.sId++"&sid="++urlSid)
 	goListData = string.match(goListData,"var\s*goListData\s*=\s*([^\n]*)")
 	goListData = string.replace(goListData,'\+\"','\"')
-	goGroupData["oQQ"]["oList"][k][v.sId] = web.json.parse(goListData) //·Å½ø·Ö×éÊı¾İÖĞ
+	goGroupData["oQQ"]["oList"][k][v.sId] = web.json.parse(goListData) //æ”¾è¿›åˆ†ç»„æ•°æ®ä¸­
 }
 
-//"¡¾Êô×é¡¿","¡¾ÓÊÏä¡¿","¡¾±¸×¢¡¿","¡¾êÇ³Æ¡¿","¡¾µç»°¡¿"
-var csvText = string.format('"%s","%s","%s","%s"\r\n', "¡¾Êô×é¡¿","¡¾ÓÊÏä¡¿","¡¾±¸×¢¡¿","¡¾êÇ³Æ¡¿")
+//"ã€å±ç»„ã€‘","ã€é‚®ç®±ã€‘","ã€å¤‡æ³¨ã€‘","ã€æ˜µç§°ã€‘","ã€ç”µè¯ã€‘"
+var csvText = string.fromto(string.format('"%s","%s","%s","%s"\r\n', "ã€å±ç»„ã€‘","ã€é‚®ç®±ã€‘","ã€å¤‡æ³¨ã€‘","ã€æ˜µç§°ã€‘"))
 for(ql_k,ql_v in goGroupData["oQQ"]["oList"]){
 	for(k,v in goGroupData["oQQ"]["oList"][ql_k][ql_v.sId]["oList"]){
 		v.oQQNickName := v.oName
@@ -68,9 +69,9 @@ for(ql_k,ql_v in goGroupData["oQQ"]["oList"]){
 	}
 }
 
-//Ğ´ÈëÎÄ¼ş
-string.save(io.splitpath(io.tmpname()).dir++'QQFriends.'++qq_number++'.json', web.json.stringify(goGroupData)) //Ô­Ê¼JSON
-csvFile = 'QQFriends.'++qq_number++'.csv' //²»´æÔÚ£¬»òÎÄ¼ş¿ÉĞ´Ê±£¬µ¼³öcsvÊı¾İ
+//å†™å…¥æ–‡ä»¶
+string.save(io.splitpath(io.tmpname()).dir++'QQFriends.'++qq_number++'.json', web.json.stringify(goGroupData)) //åŸå§‹JSON
+csvFile = 'QQFriends.'++qq_number++'.csv' //ä¸å­˜åœ¨ï¼Œæˆ–æ–‡ä»¶å¯å†™æ—¶ï¼Œå¯¼å‡ºcsvæ•°æ®
 if(not(io.exist(csvFile)) or io.exist(csvFile,2)){ string.save(csvFile, csvText) }
-if(mainForm.msgboxTest("ÊÇ·ñÁ¢¿Ì´ò¿ªµ¼³öÎÄ¼ş£¿")){ import process; process.execute(csvFile) }
+if(mainForm.msgboxTest("æ˜¯å¦ç«‹åˆ»æ‰“å¼€å¯¼å‡ºæ–‡ä»¶ï¼Ÿ")){ import process; process.execute(csvFile) }
 
