@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<project ver="10" name="QQ好友导出" libEmbed="true" icon="mix\logo.ico" ui="win" output="QQFriend.exe" CompanyName="BY JTWO" FileDescription="QQ好友导出" LegalCopyright="" ProductName="" InternalName="" FileVersion="0.0.0.46" ProductVersion="0.0.0.46" publishDir="/Publish/" dstrip="false">
+<project ver="10" name="QQ好友导出" libEmbed="true" icon="mix\logo.ico" ui="win" output="QQFriend.exe" CompanyName="BY JTWO" FileDescription="QQ好友导出" LegalCopyright="" ProductName="" InternalName="" FileVersion="0.0.0.48" ProductVersion="0.0.0.48" publishDir="/Publish/" dstrip="false">
 	<file name="main.aau" path="main.aau"/>
 	<folder name="资源文件" path="res" embed="true">
 		<file name="qqlogin.aau" path="res\qqlogin.aau" comment="res\qqlogin.aau"/>
