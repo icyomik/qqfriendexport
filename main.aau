@@ -60,7 +60,7 @@ for(k,v in goGroupData["oQQ"]["oList"]){
 	goGroupData["oQQ"]["oList"][k][v.sId] = web.json.parse(goListData) //放进分组数据中
 }
 
-//"【属组】","【邮箱】","【备注】","【昵称】","【电话】"
+//"【属组】","【邮箱】","【备注】","【昵称】","【电话】" //注意编码
 var csvText = string.fromto(string.format('"%s","%s","%s","%s"\r\n', "【属组】","【邮箱】","【备注】","【昵称】"))
 for(ql_k,ql_v in goGroupData["oQQ"]["oList"]){
 	for(k,v in goGroupData["oQQ"]["oList"][ql_k][ql_v.sId]["oList"]){
